@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پایانه حرفه‌ای اخبار فارکس</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://v1.fontapi.ir/css/Vazirmatn');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap');
+*{box-sizing:border-box}
+body{font-family:'Vazirmatn',sans-serif;background:#0b0e14;color:#d1d5db;margin:0}
+.mono{font-family:'Roboto Mono',monospace;letter-spacing:-0.5px}
+.panel{background:#151924;border:1px solid #2a2e39;box-shadow:0 4px 24px rgba(0,0,0,0.5);border-radius:14px}
+.impact-high{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.35)}
+.impact-medium{background:rgba(249,115,22,0.15);color:#fb923c;border:1px solid rgba(249,115,22,0.35)}
+.impact-low{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35)}
+@keyframes pulse-red{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)}70%{box-shadow:0 0 0 8px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+.pulse-red{animation:pulse-red 2s infinite}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+table{border-collapse:separate;border-spacing:0;width:100%}
+th{background:#1e222d;border-bottom:2px solid #2a2e39;position:sticky;top:0;z-index:10}
+td{border-bottom:1px solid #1e222d;transition:background 0.15s}
+tr:hover td{background:#1a1f2e}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0b0e14}
+::-webkit-scrollbar-thumb{background:#2a2e39;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#3c4253}
+.cur-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #2a2e39;cursor:pointer;transition:all 0.2s;background:#0b0e14;color:#6b7280;display:inline-flex;align-items:center;gap:4px}
+.cur-btn.active{background:#1e3a5f;border-color:#3b82f6;color:#fff}
+.cur-btn:hover{border-color:#6b7280}
+.imp-label{cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background 0.2s;border:1px solid transparent}
+.imp-label.active{background:#1e222d;border-color:#2a2e39}
+.imp-label:hover{background:#1e222d}
+.highlight-high{background:linear-gradient(90deg,rgba(239,68,68,0.04) 0%,transparent 100%)}
+.actual-badge{background:#252d3d;color:#e2e8f0;padding:2px 10px;border-radius:6px;font-weight:700;border:1px solid #3c4253}
+.analysis-box{padding:6px 10px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid}
+</style>
+</head>
+<body class="min-h-screen pb-12">
+
+<!-- TradingView Ticker -->
+<div style="height:46px;overflow:hidden" class="bg-[#1d1e25] border-b border-[#2a2e39]">
+  <div class="tradingview-widget-container" style="height:46px">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {"symbols":[{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"FX:EURUSD","title":"EUR/USD"},{"proName":"FX:GBPUSD","title":"GBP/USD"},{"proName":"FX:USDJPY","title":"USD/JPY"},{"proName":"FX:USDCAD","title":"USD/CAD"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},{"proName":"FX:AUDUSD","title":"AUD/USD"}],"showSymbolLogo":true,"colorTheme":"dark","isTransparent":true,"displayMode":"adaptive","locale":"en"}
+    </script>
+  </div>
+</div>
+
+<div style="max-width:1450px;margin:0 auto;padding:20px 16px">
+
+  <!-- Header -->
+  <div class="panel" style="padding:20px 24px;margin-bottom:20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(59,130,246,0.08),transparent 70%);border-radius:50%;pointer-events:none"></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:14px;color:#60a5fa;font-size:24px">
+        <i class="fas fa-satellite-dish" style="animation:spin 4s linear infinite"></i>
+      </div>
+      <div>
+        <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0 0 6px">پایانه هوشمند تقویم اقتصادی</h1>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:12px;color:#9ca3af">
+          <span id="status-badge" style="padding:3px 10px;border-radius:6px;border:1px solid;background:rgba(234,179,8,0.15);color:#fbbf24;border-color:rgba(234,179,8,0.3);display:inline-flex;align-items:center;gap:5px">
+            <i class="fas fa-circle-notch spin" style="font-size:9px"></i> در حال اتصال...
+          </span>
+          <span><i class="far fa-clock" style="margin-left:4px"></i>منطقه زمانی: <span id="tz-display" class="mono" style="color:#d1d5db"></span></span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onclick="enableNotifications()" style="background:#1e222d;border:1px solid #2a2e39;border-radius:10px;padding:10px 16px;color:#d1d5db;cursor:pointer;font-family:'Vazirmatn',sans-serif;font-size:13px;display:flex;align-items:center;gap:8px;transition:background 0.2s" onmouseover="this.style.background='#252d3d'" onmouseout="this.style.background='#1e222d'">
+        <i class="fas fa-bell" style="color:#f59e0b"></i> هشدار اخبار مهم
+      </button>
+      <div id="live-clock" class="mono" style="font-size:28px;font-weight:800;color:#fff;background:#0b0e14;padding:8px 16px;border-radius:10px;border:1px solid #2a2e39;letter-spacing:1px">--:--:--</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 220px;gap:16px;margin-bottom:20px" class="filters-grid">
+
+    <!-- Currency Filter -->
+    <div class="panel" style="padding:16px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2a2e39">
+        <span style="font-weight:600;color:#e5e7eb;font-size:14px"><i class="fas fa-coins" style="color:#60a5fa;margin-left:6px"></i>انتخاب ارزها</span>
+        <button onclick="selectAll()" style="background:none;border:none;color:#60a5fa;cursor:pointer;font-family:'Vazirmatn',sans-serif;font-size:12px">انتخاب همه</button>
+      </div>
+      <div id="filter-currencies" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+
+    <!-- Impact Filter -->
+    <div class="panel" style="padding:16px 20px">
+      <div style="font-weight:600;color:#e5e7eb;font-size:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2a2e39">
+        <i class="fas fa-fire" style="color:#f97316;margin-left:6px"></i>اهمیت رویداد
+      </div>
+      <div id="filter-impacts"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="panel" style="padding:16px 20px;display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div style="font-weight:600;color:#e5e7eb;font-size:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2a2e39">
+          <i class="fas fa-sliders-h" style="color:#a78bfa;margin-left:6px"></i>تنظیمات
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#d1d5db;cursor:pointer">
+          <input type="checkbox" id="hide-past" onchange="renderTable()" style="width:15px;height:15px;accent-color:#3b82f6">
+          مخفی کردن اخبار گذشته
+        </label>
+      </div>
+      <button onclick="fetchData(true)" id="refresh-btn" style="margin-top:12px;width:100%;background:#2563eb;border:none;border-radius:10px;padding:11px;color:#fff;font-family:'Vazirmatn',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;transition:background 0.2s" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+        <i class="fas fa-sync-alt" id="sync-icon"></i> به‌روزرسانی آنی
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="stats-bar">
+    <div class="panel" style="padding:14px 18px;display:flex;align-items:center;gap:12px">
+      <div style="background:rgba(239,68,68,0.15);border-radius:10px;padding:10px;color:#f87171;font-size:18px"><i class="fas fa-fire"></i></div>
+      <div><div style="font-size:24px;font-weight:800;color:#fff" id="stat-high">—</div><div style="font-size:11px;color:#9ca3af">اخبار مهم</div></div>
+    </div>
+    <div class="panel" style="padding:14px 18px;display:flex;align-items:center;gap:12px">
+      <div style="background:rgba(249,115,22,0.15);border-radius:10px;padding:10px;color:#fb923c;font-size:18px"><i class="fas fa-bolt"></i></div>
+      <div><div style="font-size:24px;font-weight:800;color:#fff" id="stat-med">—</div><div style="font-size:11px;color:#9ca3af">اخبار متوسط</div></div>
+    </div>
+    <div class="panel" style="padding:14px 18px;display:flex;align-items:center;gap:12px">
+      <div style="background:rgba(59,130,246,0.15);border-radius:10px;padding:10px;color:#60a5fa;font-size:18px"><i class="fas fa-calendar-day"></i></div>
+      <div><div style="font-size:24px;font-weight:800;color:#fff" id="stat-today">—</div><div style="font-size:11px;color:#9ca3af">رویداد امروز</div></div>
+    </div>
+    <div class="panel" style="padding:14px 18px;display:flex;align-items:center;gap:12px">
+      <div style="background:rgba(34,197,94,0.15);border-radius:10px;padding:10px;color:#4ade80;font-size:18px"><i class="fas fa-list"></i></div>
+      <div><div style="font-size:24px;font-weight:800;color:#fff" id="stat-total">—</div><div style="font-size:11px;color:#9ca3af">کل رویدادها</div></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="panel" style="overflow:hidden">
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="padding:12px 16px;text-align:right;font-size:12px;color:#9ca3af;font-weight:600;white-space:nowrap">زمان</th>
+            <th style="padding:12px 16px;text-align:right;font-size:12px;color:#9ca3af;font-weight:600">ارز</th>
+            <th style="padding:12px 16px;text-align:right;font-size:12px;color:#9ca3af;font-weight:600">رویداد اقتصادی</th>
+            <th style="padding:12px 16px;text-align:right;font-size:12px;color:#9ca3af;font-weight:600">اهمیت</th>
+            <th style="padding:12px 16px;text-align:center;font-size:12px;color:#9ca3af;font-weight:600">قبلی</th>
+            <th style="padding:12px 16px;text-align:center;font-size:12px;color:#9ca3af;font-weight:600">پیش‌بینی</th>
+            <th style="padding:12px 16px;text-align:center;font-size:12px;color:#9ca3af;font-weight:600">فعلی</th>
+            <th style="padding:12px 16px;text-align:right;font-size:12px;color:#9ca3af;font-weight:600">تحلیل هوشمند</th>
+          </tr>
+        </thead>
+        <tbody id="data-body">
+          <tr><td colspan="8" style="padding:60px;text-align:center;color:#6b7280">
+            <i class="fas fa-circle-notch spin" style="font-size:32px;color:#3b82f6;display:block;margin-bottom:12px"></i>
+            در حال دریافت اطلاعات از سرورهای فارکس فکتوری...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center;margin-top:20px;font-size:12px;color:#4b5563">
+    داده‌ها از <span style="color:#60a5fa">Forex Factory</span> · به‌روزرسانی خودکار هر ۲ دقیقه · تمامی زمان‌ها بر اساس منطقه زمانی محلی شما
+  </div>
+
+</div>
+
+<style>
+@media(max-width:900px){
+  .filters-grid{grid-template-columns:1fr!important}
+  #stats-bar{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:500px){
+  #stats-bar{grid-template-columns:1fr!important}
+}
+</style>
+
+<script>
+// ══════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════
+const ALL_CURRENCIES = ["USD","EUR","GBP","JPY","AUD","CAD","CHF","NZD","CNY"];
+const IMPACT_LEVELS  = ["High","Medium","Low"];
+const CACHE_KEY      = "ffcal_pro_v4";
+const CACHE_TTL      = 300000; // 5 min
+
+const FLAGS = {USD:"us",EUR:"eu",GBP:"gb",JPY:"jp",AUD:"au",CAD:"ca",CHF:"ch",NZD:"nz",CNY:"cn"};
+
+const IMPACT_CFG = {
+  High:   {label:"مهم",    cls:"impact-high pulse-red", icon:"fa-fire",  color:"#f87171"},
+  Medium: {label:"متوسط", cls:"impact-medium",          icon:"fa-bolt",  color:"#fb923c"},
+  Low:    {label:"کم",     cls:"impact-low",             icon:"fa-minus", color:"#4ade80"}
+};
+
+const INVERSE_KW = ["unemployment","jobless","claims","cpi","inflation"];
+
+const PROXIES = [
+  "https://api.allorigins.win/raw?url=",
+  "https://corsproxy.io/?",
+  "https://api.codetabs.com/v1/proxy?quest="
+];
+const FF_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let allData      = [];
+let selCurrencies = ["USD","EUR","GBP","JPY","CAD","AUD"];
+let selImpacts    = ["High","Medium"];
+
+// ══════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════
+document.getElementById("tz-display").innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
+setInterval(function(){
+  document.getElementById("live-clock").innerText =
+    new Date().toLocaleTimeString("en-US",{hour12:false});
+}, 1000);
+
+// ══════════════════════════════════════
+//  STATUS BADGE
+// ══════════════════════════════════════
+function setStatus(html, color){
+  var styles = {
+    yellow: "background:rgba(234,179,8,0.15);color:#fbbf24;border-color:rgba(234,179,8,0.3)",
+    green:  "background:rgba(34,197,94,0.15);color:#4ade80;border-color:rgba(34,197,94,0.3)",
+    blue:   "background:rgba(59,130,246,0.15);color:#60a5fa;border-color:rgba(59,130,246,0.3)",
+    red:    "background:rgba(239,68,68,0.15);color:#f87171;border-color:rgba(239,68,68,0.3)"
+  };
+  var b = document.getElementById("status-badge");
+  b.setAttribute("style","padding:3px 10px;border-radius:6px;border:1px solid;display:inline-flex;align-items:center;gap:5px;font-size:12px;"+styles[color]);
+  b.innerHTML = html;
+}
+
+// ══════════════════════════════════════
+//  FETCH DATA
+// ══════════════════════════════════════
+async function fetchData(force){
+  var si = document.getElementById("sync-icon");
+  si.classList.add("spin");
+  setStatus('<i class="fas fa-circle-notch spin" style="font-size:9px"></i> در حال اتصال...', "yellow");
+
+  // Cache check
+  if(!force){
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+      if(c && (Date.now()-c.ts < CACHE_TTL)){
+        allData = c.data;
+        renderFilters(); renderTable(); updateStats();
+        setStatus('<i class="fas fa-database"></i> از کش ('+allData.length+' رویداد)', "blue");
+        si.classList.remove("spin");
+        return;
+      }
+    }catch(e){}
+  }
+
+  // Try proxies
+  var ok = false;
+  for(var i=0; i<PROXIES.length; i++){
+    try{
+      var url = PROXIES[i] + encodeURIComponent(FF_URL);
+      var res = await fetch(url, {signal: AbortSignal.timeout(9000)});
+      if(!res.ok) continue;
+      var raw = await res.json();
+      if(!Array.isArray(raw) || raw.length === 0) continue;
+
+      allData = raw.map(function(x){
+        return {
+          title:    x.title    || "",
+          currency: x.country  || "",
+          impact:   (x.impact==="High"||x.impact==="Medium") ? x.impact : "Low",
+          date:     x.date     || "",
+          previous: x.previous || "",
+          forecast: x.forecast || "",
+          actual:   x.actual   || "",
+          notified: false
+        };
+      });
+
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(), data:allData})); }catch(e){}
+      setStatus('<i class="fas fa-check-circle"></i> متصل و زنده ('+allData.length+' رویداد)', "green");
+      ok = true;
+      break;
+    }catch(e){ console.warn("Proxy "+i+" failed:", e.message); }
+  }
+
+  if(!ok){
+    setStatus('<i class="fas fa-exclamation-triangle"></i> خطا — دیتای نمونه', "red");
+    // Try last cache
+    try{
+      var lc = JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+      if(lc) allData = lc.data;
+      else   allData = mockData();
+    }catch(e){ allData = mockData(); }
+  }
+
+  renderFilters(); renderTable(); updateStats();
+  si.classList.remove("spin");
+}
+
+function mockData(){
+  var now = new Date();
+  function add(m){ return new Date(now.getTime()+m*60000).toISOString(); }
+  return [
+    {title:"Non-Farm Payrolls",         currency:"USD",impact:"High",  date:add(5),   previous:"275K",  forecast:"200K",  actual:"",notified:false},
+    {title:"Unemployment Rate",          currency:"USD",impact:"High",  date:add(5),   previous:"3.9%",  forecast:"3.8%",  actual:"",notified:false},
+    {title:"ECB Rate Decision",          currency:"EUR",impact:"High",  date:add(70),  previous:"4.50%", forecast:"4.50%", actual:"",notified:false},
+    {title:"CPI y/y",                   currency:"GBP",impact:"High",  date:add(-130),previous:"3.4%",  forecast:"3.1%",  actual:"3.2%",notified:false},
+    {title:"GDP q/q",                   currency:"CAD",impact:"Medium",date:add(90),  previous:"0.3%",  forecast:"0.4%",  actual:"",notified:false},
+    {title:"Trade Balance",             currency:"AUD",impact:"Low",   date:add(150), previous:"-2.1B", forecast:"-1.8B", actual:"",notified:false},
+    {title:"BOJ Press Conference",      currency:"JPY",impact:"High",  date:add(200), previous:"",      forecast:"",      actual:"",notified:false},
+    {title:"Retail Sales m/m",          currency:"USD",impact:"Medium",date:add(-60), previous:"0.4%",  forecast:"0.3%",  actual:"0.6%",notified:false}
+  ];
+}
+
+// ══════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════
+function updateStats(){
+  var now   = new Date();
+  var today = now.toDateString();
+  var high=0, med=0, tod=0;
+  allData.forEach(function(x){
+    if(x.impact==="High")   high++;
+    if(x.impact==="Medium") med++;
+    if(new Date(x.date).toDateString()===today) tod++;
+  });
+  document.getElementById("stat-high").innerText  = high;
+  document.getElementById("stat-med").innerText   = med;
+  document.getElementById("stat-today").innerText = tod;
+  document.getElementById("stat-total").innerText = allData.length;
+}
+
+// ══════════════════════════════════════
+//  FILTERS
+// ══════════════════════════════════════
+function renderFilters(){
+  // Currencies
+  var cc = "";
+  ALL_CURRENCIES.forEach(function(cur){
+    var on = selCurrencies.includes(cur);
+    var flag = FLAGS[cur] ? '<img src="https://flagcdn.com/16x12/'+FLAGS[cur]+'.png" onerror="this.style.display=\'none\'" style="vertical-align:middle">' : "";
+    cc += '<button onclick="toggleCur(\''+cur+'\')" class="cur-btn'+(on?" active":"")+'">'+flag+' '+cur+'</button>';
+  });
+  document.getElementById("filter-currencies").innerHTML = cc;
+
+  // Impacts
+  var ic = "";
+  IMPACT_LEVELS.forEach(function(imp){
+    var on  = selImpacts.includes(imp);
+    var cfg = IMPACT_CFG[imp];
+    ic += '<label class="imp-label'+(on?" active":"")+'">'+
+          '<input type="checkbox"'+(on?" checked":"")+' onchange="toggleImp(\''+imp+'\')" style="width:15px;height:15px;accent-color:#3b82f6">'+
+          '<span style="font-size:13px;color:#d1d5db;width:40px">'+cfg.label+'</span>'+
+          '<span class="'+cfg.cls+'" style="padding:3px 10px;border-radius:6px;font-size:11px;display:inline-flex;align-items:center;gap:5px;flex:1;justify-content:center">'+
+          '<i class="fas '+cfg.icon+'"></i> '+imp+'</span></label>';
+  });
+  document.getElementById("filter-impacts").innerHTML = ic;
+}
+
+function toggleCur(c){
+  var i = selCurrencies.indexOf(c);
+  if(i>-1) selCurrencies.splice(i,1); else selCurrencies.push(c);
+  renderFilters(); renderTable();
+}
+function toggleImp(i){
+  var x = selImpacts.indexOf(i);
+  if(x>-1) selImpacts.splice(x,1); else selImpacts.push(i);
+  renderFilters(); renderTable();
+}
+function selectAll(){ selCurrencies=[].concat(ALL_CURRENCIES); renderFilters(); renderTable(); }
+
+// ══════════════════════════════════════
+//  ANALYSIS ENGINE
+// ══════════════════════════════════════
+function analyze(item){
+  if(!item.actual || !item.forecast){
+    return '<span style="color:#4b5563;font-size:11px;display:flex;align-items:center;gap:4px">'+
+           '<i class="far fa-clock"></i> در انتظار داده...</span>';
+  }
+  var cn = function(s){ return parseFloat(String(s).replace(/[^0-9.-]+/g,"")); };
+  var act  = cn(item.actual);
+  var fcst = cn(item.forecast);
+  if(isNaN(act)||isNaN(fcst)||act===fcst){
+    return '<span style="color:#6b7280;font-size:11px">مطابق پیش‌بینی (خنثی)</span>';
+  }
+  var inv = INVERSE_KW.some(function(k){ return item.title.toLowerCase().includes(k); });
+  var stronger = act > fcst;
+  if(inv) stronger = !stronger;
+
+  if(item.currency==="USD"){
+    if(stronger){
+      return '<div class="analysis-box" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)">'+
+             '<div style="color:#4ade80"><i class="fas fa-caret-up"></i> صعود شاخص دلار (DXY)</div>'+
+             '<div style="color:#f87171;margin-top:3px"><i class="fas fa-caret-down"></i> فشار نزولی روی طلا (XAU)</div></div>';
+    } else {
+      return '<div class="analysis-box" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25)">'+
+             '<div style="color:#f87171"><i class="fas fa-caret-down"></i> افت شاخص دلار (DXY)</div>'+
+             '<div style="color:#4ade80;margin-top:3px"><i class="fas fa-caret-up"></i> پتانسیل صعود طلا (XAU)</div></div>';
+    }
+  }
+  if(stronger){
+    return '<div class="analysis-box" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:#4ade80">'+
+           '<i class="fas fa-caret-up"></i> تقویت ارز '+item.currency+'</div>';
+  }
+  return '<div class="analysis-box" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25);color:#f87171">'+
+         '<i class="fas fa-caret-down"></i> تضعیف ارز '+item.currency+'</div>';
+}
+
+// ══════════════════════════════════════
+//  TABLE RENDER
+// ══════════════════════════════════════
+function renderTable(){
+  var now      = new Date();
+  var hidePast = document.getElementById("hide-past").checked;
+
+  var filtered = allData.filter(function(x){
+    if(!selCurrencies.includes(x.currency)) return false;
+    if(!selImpacts.includes(x.impact))     return false;
+    if(hidePast && new Date(x.date)<now && x.actual) return false;
+    return true;
+  }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+
+  var tbody = document.getElementById("data-body");
+
+  if(!filtered.length){
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:60px;text-align:center;color:#6b7280">موردی با این فیلترها یافت نشد.</td></tr>';
+    return;
+  }
+
+  var rows = "";
+  var lastDay = "";
+
+  filtered.forEach(function(item){
+    var dt      = new Date(item.date);
+    var isPast  = dt < now;
+    var timeStr = dt.toLocaleTimeString("en-US",{hour12:false,hour:"2-digit",minute:"2-digit"});
+    var dayStr  = dt.toLocaleDateString("fa-IR",{weekday:"long",month:"long",day:"numeric"});
+    var cfg     = IMPACT_CFG[item.impact];
+    var flagSrc = FLAGS[item.currency] ? "https://flagcdn.com/20x15/"+FLAGS[item.currency]+".png" : "";
+
+    // Day separator
+    var dayKey = dt.toDateString();
+    if(dayKey !== lastDay){
+      lastDay = dayKey;
+      rows += '<tr><td colspan="8" style="padding:8px 16px;background:#0f1320;border-bottom:1px solid #2a2e39">'+
+              '<span style="font-size:11px;color:#60a5fa;font-weight:700"><i class="fas fa-calendar-alt" style="margin-left:6px"></i>'+dayStr+'</span></td></tr>';
+    }
+
+    var actualCell = item.actual
+      ? '<span class="actual-badge mono">'+item.actual+'</span>'
+      : '<span style="color:#374151">—</span>';
+
+    var rowBg = (!isPast && item.impact==="High") ? "highlight-high" : "";
+    var opacity = isPast ? "opacity:0.55;" : "";
+
+    rows += '<tr class="'+rowBg+' fade-in" style="'+opacity+'">';
+    rows += '<td style="padding:12px 16px;white-space:nowrap">'+
+            '<div class="mono" style="color:#e5e7eb;font-size:13px">'+timeStr+'</div>'+
+            (isPast ? '<div style="font-size:10px;color:#6b7280;margin-top:2px">پایان یافته</div>' :
+             item.impact==="High" ? '<div style="font-size:10px;color:#f87171;margin-top:2px">⚡ آتی</div>' : '')+
+            '</td>';
+    rows += '<td style="padding:12px 16px">'+
+            '<div style="display:flex;align-items:center;gap:6px">'+
+            (flagSrc ? '<img src="'+flagSrc+'" onerror="this.style.display=\'none\'" style="border-radius:2px">' : '')+
+            '<span style="font-weight:700;color:#e5e7eb;font-size:13px">'+item.currency+'</span>'+
+            '</div></td>';
+    rows += '<td style="padding:12px 16px;max-width:220px">'+
+            '<span style="color:#d1d5db;font-size:13px;font-weight:500" title="'+item.title+'">'+
+            (item.title.length>40 ? item.title.substring(0,40)+'...' : item.title)+'</span></td>';
+    rows += '<td style="padding:12px 16px">'+
+            '<span class="'+cfg.cls+'" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:5px">'+
+            '<i class="fas '+cfg.icon+'"></i> '+cfg.label+'</span></td>';
+    rows += '<td style="padding:12px 16px;text-align:center" class="mono"><span style="color:#9ca3af;font-size:13px">'+( item.previous||"—")+'</span></td>';
+    rows += '<td style="padding:12px 16px;text-align:center" class="mono"><span style="color:#60a5fa;font-weight:700;font-size:13px">'+(item.forecast||"—")+'</span></td>';
+    rows += '<td style="padding:12px 16px;text-align:center" class="mono">'+actualCell+'</td>';
+    rows += '<td style="padding:12px 16px">'+analyze(item)+'</td>';
+    rows += '</tr>';
+  });
+
+  tbody.innerHTML = rows;
+}
+
+// ══════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════
+function enableNotifications(){
+  if(!("Notification" in window)){ alert("مرورگر شما از اعلان پشتیبانی نمی‌کند."); return; }
+  Notification.requestPermission().then(function(p){
+    if(p==="granted") alert("✅ هشدارها فعال شد. ۵ دقیقه قبل از اخبار مهم اطلاع‌رسانی می‌شود.");
+  });
+}
+
+function checkAlarms(){
+  if(Notification.permission!=="granted") return;
+  var now = new Date();
+  allData.forEach(function(item){
+    if(item.impact!=="High" || item.notified) return;
+    var diff = (new Date(item.date) - now) / 60000;
+    if(diff>0 && diff<=5){
+      new Notification("🚨 هشدار: "+item.currency, {
+        body: 'رویداد "'+item.title+'" تا چند دقیقه دیگر منتشر می‌شود.',
+        icon: "https://cdn-icons-png.flaticon.com/512/2950/2950150.png"
+      });
+      item.notified = true;
+    }
+  });
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+renderFilters();
+fetchData(false);
+setInterval(function(){ fetchData(false); }, 120000);
+setInterval(checkAlarms, 30000);
+</script>
+</body>
+</html>
