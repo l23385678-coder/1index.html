@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پایانه حرفه‌ای اخبار فارکس | Forex Pro Terminal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://v1.fontapi.ir/css/Vazirmatn');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap');
+
+body {
+font-family: 'Vazirmatn', sans-serif;
+background-color: #0b0e14; /* Deep trading dark */
+color: #d1d5db;
+}
+
+.font-mono-num {
+font-family: 'Roboto Mono', monospace;
+letter-spacing: -0.5px;
+}
+
+/* Premium Glass/Terminal Effects */
+.panel {
+background: #151924;
+border: 1px solid #2a2e39;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+border-radius: 12px;
+}
+
+.impact-high { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.impact-medium { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+.impact-low { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+
+.pulse-red {
+animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+table { border-collapse: separate; border-spacing: 0; }
+th { background: #1e222d; border-bottom: 2px solid #2a2e39; }
+tr:hover td { background: #1e222d; }
+td { border-bottom: 1px solid #1e222d; transition: background 0.2s; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0b0e14; }
+::-webkit-scrollbar-thumb { background: #2a2e39; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3c4253; }
+</style>
+</head>
+<body class="min-h-screen pb-10">
+
+<div class="w-full h-[46px] bg-[#1d1e25] border-b border-[#2a2e39]">
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+{
+"symbols": [
+{ "proName": "OANDA:XAUUSD", "title": "Gold" },
+{ "proName": "FX:EURUSD", "title": "EUR/USD" },
+{ "proName": "FX:GBPUSD", "title": "GBP/USD" },
+{ "proName": "FX:USDJPY", "title": "USD/JPY" },
+{ "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" }
+ ],
+"showSymbolLogo": true,
+"colorTheme": "dark",
+"isTransparent": true,
+"displayMode": "adaptive",
+"locale": "en"
+}
+</script>
+</div>
+</div>
+
+<div class="max-w-[1400px] mx-auto p-4 md:p-6 space-y-6">
+
+<header class="panel p-5 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -z-10"></div>
+
+<div class="flex items-center gap-5 w-full lg:w-auto">
+<div class="bg-blue-500/20 p-4 rounded-xl border border-blue-500/30 text-blue-400">
+<i class="fas fa-satellite-dish text-3xl animate-pulse"></i>
+</div>
+<div>
+<h1 class="text-2xl font-bold text-white mb-2 tracking-wide">پایانه هوشمند تقویم اقتصادی</h1>
+<div class="flex flex-wrap items-center gap-3 text-sm text-gray-400">
+<span id="status-badge" class="px-2 py-1 rounded-md bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 flex items-center gap-1.5">
+<i class="fas fa-circle-notch fa-spin text-[10px]"></i> در حال اتصال...
+</span>
+<span>|</span>
+<span><i class="far fa-clock ml-1"></i>زمان محلی: <span id="tz-display" class="font-mono-num text-gray-300"></span></span>
+</div>
+</div>
+</div>
+
+<div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
+<button onclick="enableNotifications()" class="text-sm bg-[#2a2e39] hover:bg-[#363a45] transition-colors px-4 py-2.5 rounded-lg border border-[#3c4253] flex items-center gap-2 text-gray-300">
+<i class="fas fa-bell text-yellow-500"></i> هشدار اخبار مهم
+</button>
+<div class="text-3xl font-mono-num font-bold text-white bg-[#0b0e14] px-4 py-2 rounded-lg border border-[#2a2e39]" id="live-clock">
+--:--:--
+</div>
+</div>
+</header>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="panel p-5 lg:col-span-2">
+<div class="flex items-center justify-between mb-4 border-b border-[#2a2e39] pb-3">
+<h3 class="font-semibold text-gray-200"><i class="fas fa-coins text-blue-400 ml-2"></i>انتخاب ارزها</h3>
+<button onclick="selectAllCurrencies()" class="text-xs text-blue-400 hover:text-blue-300">انتخاب همه</button>
+</div>
+<div class="flex flex-wrap gap-2" id="filter-currencies">
+</div>
+</div>
+
+<div class="panel p-5">
+<h3 class="font-semibold text-gray-200 mb-4 border-b border-[#2a2e39] pb-3"><i class="fas fa-fire text-orange-400 ml-2"></i>اهمیت رویداد</h3>
+<div class="flex flex-col gap-2" id="filter-impacts">
+</div>
+</div>
+
+<div class="panel p-5 flex flex-col justify-between">
+<div>
+<h3 class="font-semibold text-gray-200 mb-4 border-b border-[#2a2e39] pb-3"><i class="fas fa-sliders-h text-purple-400 ml-2"></i>تنظیمات</h3>
+<label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+<input type="checkbox" id="hide-past-toggle" class="form-checkbox rounded bg-[#0b0e14] border-[#3c4253] text-blue-500 focus:ring-0">
+مخفی کردن اخبار گذشته
+</label>
+</div>
+<button onclick="fetchCalendarData(true)" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 transition-colors rounded-lg p-3 text-sm font-bold text-white flex justify-center items-center gap-2">
+<i class="fas fa-sync-alt" id="sync-icon"></i> به‌روزرسانی آنی
+</button>
+</div>
+</div>
+
+<div class="panel overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-right">
+<thead>
+<tr>
+<th class="p-4 text-sm font-semibold text-gray-400 w-24">زمان</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-24">ارز</th>
+<th class="p-4 text-sm font-semibold text-gray-400">رویداد اقتصادی</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-28">اهمیت</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-24 text-center">قبلی</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-24 text-center">پیش‌بینی</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-24 text-center">فعلی</th>
+<th class="p-4 text-sm font-semibold text-gray-400 w-64">تحلیل هوشمند (تأثیر بر طلا/ارز)</th>
+</tr>
+</thead>
+<tbody id="data-body" class="text-sm">
+<tr>
+<td colspan="8" class="p-10 text-center text-gray-500">
+<i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-blue-500"></i>
+<p>در حال دریافت اطلاعات از سرورهای فارکس فکتوری...</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+// --- Configuration & State ---
+const ALL_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD", "CNY"];
+const IMPACT_LEVELS = ["High", "Medium", "Low"];
+const CACHE_KEY = "forex_pro_cache";
+
+let state = {
+data: [],
+filters: {
+currencies: ["USD", "EUR", "GBP", "JPY", "CAD", "AUD"], // Default visible
+impacts: ["High", "Medium"]
+},
+hidePast: false
+};
+
+const flags = {
+"USD": "us", "EUR": "eu", "GBP": "gb", "JPY": "jp",
+"AUD": "au", "CAD": "ca", "CHF": "ch", "NZD": "nz", "CNY": "cn"
+};
+
+const impactMap = {
+"High": { label: "مهم", class: "impact-high pulse-red font-bold", icon: "fa-fire" },
+"Medium": { label: "متوسط", class: "impact-medium", icon: "fa-bolt" },
+"Low": { label: "کم", class: "impact-low", icon: "fa-minus" }
+};
+
+// Inverse indicators: where Actual > Forecast is BAD for the currency
+const inverseIndicators = ["unemployment", "jobless", "claims", "cpi", "inflation"];
+
+// --- Initialization ---
+document.addEventListener("DOMContentLoaded", () => {
+initClock();
+document.getElementById("tz-display").innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+// Event Listeners
+document.getElementById("hide-past-toggle").addEventListener("change", (e) => {
+state.hidePast = e.target.checked;
+renderTable();
+});
+
+renderFilters();
+fetchCalendarData();
+
+// Auto refresh every 2 minutes
+setInterval(() => fetchCalendarData(false, true), 120000);
+
+// Check alarms every 30 seconds
+setInterval(checkAlarms, 30000);
+});
+
+function initClock() {
+const clockEl = document.getElementById('live-clock');
+setInterval(() => {
+clockEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+}, 1000);
+}
+
+// --- Data Fetching Engine ---
+async function fetchCalendarData(force = false, silent = false) {
+const syncIcon = document.getElementById("sync-icon");
+if (!silent) syncIcon.classList.add("fa-spin");
+
+if (!silent) setStatus("در حال ارتباط با API...", "yellow", "fa-circle-notch fa-spin");
+
+// Check Cache
+if (!force) {
+const cached = localStorage.getItem(CACHE_KEY);
+if (cached) {
+const parsed = JSON.parse(cached);
+// Valid for 5 minutes
+if (Date.now() - parsed.timestamp < 300000) {
+state.data = parsed.data;
+renderTable();
+if (!silent) setStatus("بروزرسانی از کش", "blue", "fa-database");
+syncIcon.classList.remove("fa-spin");
+return;
+}
+}
+}
+
+try {
+// Using AllOrigins Proxy to strictly bypass CORS issues on Forex Factory JSON
+const targetUrl = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
+const response = await fetch(proxyUrl);
+if (!response.ok) throw new Error("Network response was not ok");
+
+const rawData = await response.json();
+state.data = formatData(rawData);
+
+// Save to cache
+localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: state.data }));
+
+renderTable();
+setStatus("متصل و زنده", "green", "fa-check-circle");
+
+} catch (error) {
+console.error("API Error:", error);
+setStatus("خطا در دریافت - استفاده از دیتای آفلاین", "red", "fa-exclamation-triangle");
+
+// Fallback to cached data if exists, otherwise generate mock
+const cached = localStorage.getItem(CACHE_KEY);
+if (cached) {
+state.data = JSON.parse(cached).data;
+} else {
+state.data = generateMockData();
+}
+renderTable();
+}
+
+syncIcon.classList.remove("fa-spin");
+}
+
+function formatData(rawData) {
+return rawData.map(item => {
+let impact = "Low";
+if (item.impact === "High") impact = "High";
+if (item.impact === "Medium") impact = "Medium";
+
+return {
+id: Math.random().toString(36).substr(2, 9),
+title: item.title,
+currency: item.country,
+impact: impact,
+date: item.date, // ISO 8601 string handles timezone conversion automatically!
+previous: item.previous || "",
+forecast: item.forecast || "",
+actual: item.actual || "",
+notified: false
+};
+});
+}
+
+function setStatus(text, color, icon) {
+const badge = document.getElementById("status-badge");
+const colors = {
+"yellow": "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+"green": "bg-green-500/20 text-green-400 border-green-500/30",
+"blue": "bg-blue-500/20 text-blue-400 border-blue-500/30",
+"red": "bg-red-500/20 text-red-400 border-red-500/30"
+};
+badge.className = `px-2 py-1 rounded-md border text-xs flex items-center gap-1.5 ${colors[color]}`; badge.innerHTML =<i class="fas 
+
+{text}`;
+}
+
+// --- UI Rendering ---
+function renderFilters() {
+// Currencies
+document.getElementById("filter-currencies").innerHTML = ALL_CURRENCIES.map(cur => &lt;button onclick="toggleFilter('currencies', '${cur}')"
+class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${state.filters.currencies.includes(cur) ? 'bg-[#2a2e39] border-blue-500 text-white' : 'bg-[#0b0e14] border-[#2a2e39] text-gray-500 hover:border-gray-500'}"&gt; &lt;img src="https://flagcdn.com/16x12/${flags[cur]}.png" class="inline mr-1 opacity-80" onerror="this.style.display='none'">
+${cur} &lt;/button&gt;).join("");
+
+// Impacts
+document.getElementById("filter-impacts").innerHTML = IMPACT_LEVELS.map(imp => {
+const isActive = state.filters.impacts.includes(imp);
+const conf = impactMap[imp];
+return &lt;label class="flex items-center gap-3 cursor-pointer p-2 rounded-md ${isActive ? 'bg-[#2a2e39]' : 'hover:bg-[#1e222d]'} transition-colors border border-transparent ${isActive ? 'border-[#3c4253]' : ''}"&gt; &lt;input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleFilter('impacts', '${imp}')" class="form-checkbox rounded bg-[#0b0e14] border-[#3c4253] text-blue-500 focus:ring-0"&gt; &lt;span class="text-sm text-gray-300 w-16"&gt;${conf.label}</span>
+<span class="px-2 py-0.5 rounded text-xs ${conf.class} w-full text-center"&gt;&lt;i class="fas ${conf.icon} mr-1"></i> ${imp}&lt;/span&gt; &lt;/label&gt;;
+}).join("");
+}
+
+function toggleFilter(type, value) {
+const index = state.filters[type].indexOf(value);
+if (index > -1) {
+state.filters[type].splice(index, 1);
+} else {
+state.filters[type].push(value);
+}
+renderFilters();
+renderTable();
+}
+
+function selectAllCurrencies() {
+state.filters.currencies = [...ALL_CURRENCIES];
+renderFilters();
+renderTable();
+}
+
+// --- Analysis Engine ---
+function analyzeMarket(item) {
+if (!item.actual || !item.forecast) {
+return <span class="text-gray-500 text-xs flex items-center gap-1 bg-[#0b0e14] px-2 py-1 rounded w-fit border border-[#2a2e39]"&gt;&lt;i class="far fa-clock"&gt;&lt;/i&gt; در انتظار داده...&lt;/span>;
+}
+
+const cleanNum = (str) => parseFloat(String(str).replace(/[^0-9.-]+/g, ""));
+const act = cleanNum(item.actual);
+const fcst = cleanNum(item.forecast);
+
+if (isNaN(act) || isNaN(fcst) || act === fcst) {
+return <span class="text-gray-400 text-xs"&gt;مطابق پیش‌بینی (خنثی)&lt;/span>;
+}
+
+const isInverse = inverseIndicators.some(keyword => item.title.toLowerCase().includes(keyword));
+let currencyStronger = act > fcst;
+if (isInverse) currencyStronger = act < fcst;
+
+const box = "px-2.5 py-1.5 rounded flex flex-col gap-1 text-[11px] font-semibold border";
+
+if (item.currency === "USD") {
+if (currencyStronger) {
+return &lt;div class="${box} bg-green-900/20 border-green-700/50">
+<span class="text-green-400"><i class="fas fa-caret-up"></i> صعود شاخص دلار (DXY)</span>
+<span class="text-red-400"><i class="fas fa-caret-down"></i> فشار نزولی روی طلا (XAU)</span>
+</div>; } else { return
+<div class="${box} bg-red-900/20 border-red-700/50"&gt; &lt;span class="text-red-400"&gt;&lt;i class="fas fa-caret-down"&gt;&lt;/i&gt; افت شاخص دلار (DXY)&lt;/span&gt; &lt;span class="text-green-400"&gt;&lt;i class="fas fa-caret-up"&gt;&lt;/i&gt; پتانسیل صعود طلا (XAU)&lt;/span&gt; &lt;/div>;
+}
+} else {
+if (currencyStronger) {
+return <div class="${box} bg-green-900/20 border-green-700/50 text-green-400"><i class="fas fa-caret-up"></i> تقویت ارز ${item.currency}&lt;/div>;
+} else {
+return <div class="${box} bg-red-900/20 border-red-700/50 text-red-400"><i class="fas fa-caret-down"></i> تضعیف ارز ${item.currency}&lt;/div>;
+}
+}
+}
+
+// --- Table Rendering ---
+function renderTable() {
+const tbody = document.getElementById("data-body");
+const now = new Date();
+
+let filtered = state.data.filter(item => {
+if (!state.filters.currencies.includes(item.currency)) return false;
+if (!state.filters.impacts.includes(item.impact)) return false;
+
+const itemDate = new Date(item.date);
+if (state.hidePast && itemDate < now && item.actual) return false;
+
+return true;
+});
+
+// Sort by Date
+filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+if (filtered.length === 0) {
+tbody.innerHTML = <tr&gt;&lt;td colspan="8" class="p-8 text-center text-gray-500"&gt;موردی برای نمایش با این فیلترها یافت نشد.&lt;/td&gt;&lt;/tr>;
+return;
+}
+
+tbody.innerHTML = filtered.map(item => {
+const dt = new Date(item.date);
+
+// Show day and time
+const dayStr = dt.toLocaleDateString('fa-IR', { weekday: 'short' });
+const timeStr = dt.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+const isPast = dt < now;
+const conf = impactMap[item.impact];
+const flagSrc = flags[item.currency] ? https://flagcdn.com/20x15/${flags[item.currency]}.png` : '';
+
+const actualVal = item.actual
+? <span class="bg-[#2a2e39] text-white px-2 py-1 rounded font-bold"&gt;${item.actual}</span>:<i class="fas fa-minus text-gray-600"></i>`;
+
+return &lt;tr class="${!isPast && item.impact === 'High' ? 'bg-red-900/5' : ''}">
+<td class="p-4 whitespace-nowrap">
+<div class="font-mono-num text-gray-200">${timeStr}&lt;/div&gt; &lt;div class="text-[10px] text-gray-500"&gt;${dayStr}</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+${flagSrc ?: ''} &lt;span class="font-bold text-gray-300"&gt;${item.currency}</span>
+</div>
+</td>
+<td class="p-4 font-medium text-gray-300 w-full max-w-[200px] truncate" title="${item.title}"&gt;${item.title}</td>
+<td class="p-4">
+<span class="px-2 py-1 rounded text-[11px] inline-flex items-center gap-1 ${conf.class}"&gt; &lt;i class="fas ${conf.icon}"></i> ${conf.label} &lt;/span&gt; &lt;/td&gt; &lt;td class="p-4 text-center font-mono-num text-gray-500"&gt;${item.previous || '-'}</td>
+<td class="p-4 text-center font-mono-num text-blue-400 font-semibold">${item.forecast || '-'}&lt;/td&gt; &lt;td class="p-4 text-center font-mono-num"&gt;${actualVal}</td>
+<td class="p-4">${analyzeMarket(item)}&lt;/td&gt; &lt;/tr&gt;;
+}).join("");
+}
+
+// --- Notifications ---
+async function enableNotifications() {
+if (!("Notification" in window)) {
+alert("مرورگر شما از سیستم اعلان پشتیبانی نمی‌کند.");
+return;
+}
+const perm = await Notification.requestPermission();
+if (perm === "granted") {
+alert("✅ سیستم اعلان فعال شد. اخبار High Impact پنج دقیقه قبل از انتشار هشدار داده می‌شوند.");
+}
+}
+
+function checkAlarms() {
+if (Notification.permission !== "granted") return;
+const now = new Date();
+
+state.data.forEach(item => {
+if (item.impact !== "High" || item.notified) return;
+
+const eventTime = new Date(item.date);
+const diffMs = eventTime - now;
+const diffMins = diffMs / 60000;
+
+if (diffMins > 0 && diffMins <= 5) {
+new Notification(🚨 هشدار بازار: ${item.currency}, { body:رویداد مهم "${item.title}" تا چند دقیقه دیگر منتشر می‌شود. در صورت باز بودن پوزیشن روی طلا مدیریت سرمایه را رعایت کنید.,
+icon: "https://cdn-icons-png.flaticon.com/512/2950/2950150.png"
+});
+item.notified = true;
+// Save notification state to cache
+localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: state.data }));
+}
+});
+}
+
+// --- Fallback Mock Data Generator (Only runs if API totally fails) ---
+function generateMockData() {
+const now = new Date();
+const addMin = (min) => new Date(now.getTime() + min * 60000).toISOString();
+return [
+{ id: "1", title: "Non-Farm Employment Change", currency: "USD", impact: "High", date: addMin(4), previous: "275K", forecast: "200K", actual: "" },
+{ id: "2", title: "Unemployment Rate", currency: "USD", impact: "High", date: addMin(4), previous: "3.9%", forecast: "3.8%", actual: "" },
+{ id: "3", title: "ECB Interest Rate Decision", currency: "EUR", impact: "High", date: addMin(60), previous: "4.50%", forecast: "4.50%", actual: "" },
+{ id: "4", title: "CPI y/y", currency: "GBP", impact: "High", date: addMin(-120), previous: "3.4%", forecast: "3.1%", actual: "3.2%" }
+ ];
+}
+</script>
+</body>
+</html>
